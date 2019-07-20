@@ -31,7 +31,7 @@ func TestAverageAddMany(t *testing.T) {
 	for i, c := range cases {
 		err := average.Add(c.value)
 		if err != nil {
-			t.Fatalf("case %d failed: unexpected error %v", i, err)
+			t.Fatalf("case %d failed: unexpected error: %v", i, err)
 		}
 
 		assertAccurate(t, c.expectedAverage, average.value,
@@ -168,7 +168,7 @@ func TestAverageEdgeCases(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.avg.Add(tt.addValue)
 			if !tt.shouldErr && err != nil {
-				t.Fatalf("unexpected error %v", err)
+				t.Fatalf("unexpected error: %v", err)
 			}
 
 			if tt.shouldErr {
