@@ -29,8 +29,21 @@ func TestStoreHappyPath(t *testing.T) {
 
 func TestNilHandling(t *testing.T) {
 	var s store
-	err := s.Add("anything", 5)
-	assertEqual(t, uninitializedError, err.Error(), "error")
-	_, err = s.Get()
-	assertEqual(t, uninitializedError, err.Error(), "error")
+	var p *store
+	tts := []struct {
+		name  string
+		store DataStore
+	}{
+		{name: "nil map", store: &s},
+		{name: "nil pointer", store: p},
+	}
+
+	for _, tt := range tts {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.store.Add("anything", 5)
+			assertEqual(t, uninitializedError, err.Error(), "error")
+			_, err = tt.store.Get()
+			assertEqual(t, uninitializedError, err.Error(), "error")
+		})
+	}
 }

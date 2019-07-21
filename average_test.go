@@ -10,14 +10,14 @@ import (
 const requiredPercentAccuracy = 0.99999 // 99.999% ("five nines")
 
 // assertAccurate checks that the actual value differs from the expected
-// less than the required percentage.
+// within acceptable range.
 func assertAccurate(t *testing.T, expected, actual float64, failMsg string) {
 	if (actual / expected) < requiredPercentAccuracy {
 		t.Fatalf(failMsg)
 	}
 }
 
-func TestAverageAddMany(t *testing.T) {
+func TestAverageAddLayering(t *testing.T) {
 	cases := []struct {
 		value           int
 		expectedAverage float64
@@ -49,8 +49,14 @@ func TestAverageAccuracy(t *testing.T) {
 	// loss in accuracy from imprecise float representation.
 	avg := new(Average)
 	const (
-		val            = 5555
-		floatVal       = float64(val)
+		val      = 5555
+		floatVal = float64(val)
+
+		// The following was an arbitrarily chosen large number.
+		// This test may need to increase this depending on expected
+		// use. If it increases, this test should potentially use
+		// if testing.Short() { t.Skip() }
+		// due to increased runtime.
 		requiredRounds = 1e6 // 1 million actions
 	)
 
@@ -176,8 +182,9 @@ func TestAverageEdgeCases(t *testing.T) {
 				return
 			}
 			assertAccurate(t, tt.expectedAvg.value, tt.avg.value,
-				fmt.Sprintf("\nexpected average: %+v\nactual average: %+v",
+				fmt.Sprintf("\nexpected average value: %+v\nactual average value: %+v",
 					tt.expectedAvg, tt.avg))
+			assertEqual(t, tt.expectedAvg.count, tt.avg.count, "average count")
 		})
 	}
 }
@@ -195,4 +202,22 @@ func TestAverageHelpers(t *testing.T) {
 	assertEqual(t, *expected, *actual, "average")
 	assertEqual(t, actual.Value(), actual.value, "value")
 	assertEqual(t, actual.Count(), actual.count, "count")
+}
+
+func TestIntAverage(t *testing.T) {
+	tts := []struct {
+		value    float64
+		expected int
+	}{
+		{value: 0, expected: 0},     // no round
+		{value: 10.1, expected: 10}, // round down
+		{value: 10.5, expected: 11}, // round up
+	}
+
+	for _, tt := range tts {
+		t.Run(fmt.Sprintf("%f rounds to %d", tt.value, tt.expected), func(t *testing.T) {
+			avg := Average{value: tt.value}
+			assertEqual(t, tt.expected, avg.IntValue(), "rounded value")
+		})
+	}
 }

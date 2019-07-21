@@ -8,6 +8,15 @@ import (
 
 const uninitializedError = "data store was not initialized"
 
+// DefaultDataStore returns an instance of store with initialized values.
+// Also handles enforcement of store implementing the DataStore interface.
+func DefaultDataStore() DataStore {
+	return &store{
+		data:    map[string]*Average{},
+		RWMutex: sync.RWMutex{},
+	}
+}
+
 // store is the default datastore for the action counter.
 // It notably converts all alpha characters to lower case,
 // does not handle its own lock, and does not validate data.
@@ -33,7 +42,7 @@ func (s *store) Add(action string, value int) error {
 }
 
 // Get retrieves a copy of the store's data.
-// It is not safe to modify and assumes that the
+// The data is not necessarily safe to modify and assumes that the
 // caller obtained the lock.
 func (s *store) Get() (map[string]*Average, error) {
 	if s == nil || s.data == nil {

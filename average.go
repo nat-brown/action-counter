@@ -3,11 +3,12 @@ package counter
 import (
 	"errors"
 	"fmt"
+	"math"
 )
 
 // NewAverage initializes a new Average by setting private values.
 // This function is intended for instantiating an Average using data
-// from an outiside data store.
+// from an outside data store.
 //
 // Note that new(Average) is equivalent to NewAverage(0, 0).
 func NewAverage(value float64, count int) *Average {
@@ -36,9 +37,7 @@ func (a *Average) Add(newVal int) error {
 	largerRatio := (newCount - 1) / newCount
 	smallerRatio := float64(1) / newCount
 
-	largerPortion := largerRatio * a.value
-	smallerPortion := smallerRatio * float64(newVal)
-	newAverage := largerPortion + smallerPortion
+	newAverage := largerRatio*a.value + smallerRatio*float64(newVal)
 
 	a.value = newAverage
 	a.count++
@@ -51,3 +50,8 @@ func (a *Average) Count() int { return a.count }
 
 // Value returns the calculated average value.
 func (a *Average) Value() float64 { return a.value }
+
+// IntValue returns an integer representation of the average value, rounded.
+func (a *Average) IntValue() int {
+	return int(math.Round(a.value))
+}
