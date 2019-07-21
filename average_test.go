@@ -196,3 +196,21 @@ func TestAverageHelpers(t *testing.T) {
 	assertEqual(t, actual.Value(), actual.value, "value")
 	assertEqual(t, actual.Count(), actual.count, "count")
 }
+
+func TestIntAverage(t *testing.T) {
+	tts := []struct {
+		value    float64
+		expected int
+	}{
+		{value: 0, expected: 0},
+		{value: 10.1, expected: 10},
+		{value: 10.5, expected: 11},
+	}
+
+	for _, tt := range tts {
+		t.Run(fmt.Sprintf("%f rounds to %d", tt.value, tt.expected), func(t *testing.T) {
+			avg := Average{value: tt.value}
+			assertEqual(t, tt.expected, avg.IntValue(), "rounded value")
+		})
+	}
+}

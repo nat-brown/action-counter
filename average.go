@@ -3,6 +3,7 @@ package counter
 import (
 	"errors"
 	"fmt"
+	"math"
 )
 
 // NewAverage initializes a new Average by setting private values.
@@ -51,3 +52,8 @@ func (a *Average) Count() int { return a.count }
 
 // Value returns the calculated average value.
 func (a *Average) Value() float64 { return a.value }
+
+// IntValue returns an integar represation of the average value, rounded.
+func (a *Average) IntValue() int {
+	return int(math.Round(a.value))
+}
