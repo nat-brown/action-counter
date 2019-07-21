@@ -42,7 +42,7 @@ func (s *store) Add(action string, value int) error {
 }
 
 // Get retrieves a copy of the store's data.
-// It is not safe to modify and assumes that the
+// The data is not necessarily safe to modify and assumes that the
 // caller obtained the lock.
 func (s *store) Get() (map[string]*Average, error) {
 	if s == nil || s.data == nil {

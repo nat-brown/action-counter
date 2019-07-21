@@ -69,15 +69,19 @@ func TestCounterAdd(t *testing.T) {
 		DataStore: &ts,
 	}
 
+	const (
+		action = "fly"
+		time   = 30
+	)
 	err := ac.add(actionAddition{
-		Action: "fly",
-		Time:   30,
+		Action: action,
+		Time:   time,
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	assertEqual(t, true, ts.addCalled, "add called")
+	assertEqual(t, ts.store.data[action].Value(), float64(time), "average")
 	assertEqual(t, true, ts.wasLocked, "was locked")
 	assertEqual(t, true, ts.wasUnlocked, "was unlocked")
 }
@@ -125,10 +129,16 @@ func newTestStore() testStore {
 	}}
 }
 
+// testStore uses the DataStore interface to allow introspection into
+// what ActionCounter is calling.
 type testStore struct {
+	// Metadata on called functions.
 	wasLocked, wasUnlocked, wasRLocked, wasRUnlocked bool
-	addCalled, getCalled                             bool
-	returnError                                      bool
+
+	// Tells testStore to return errors for subsequent calls.
+	returnError bool
+
+	// Gives access to map for Get call.
 	*store
 }
 
@@ -148,16 +158,16 @@ func (ts *testStore) RUnlock() {
 	ts.wasRUnlocked = true
 }
 
-func (ts *testStore) Add(_ string, _ int) error {
-	ts.addCalled = true
+// Add allows testing that the data store errors bubble up.
+func (ts *testStore) Add(action string, value int) error {
 	if ts.returnError {
 		return errors.New(innerError)
 	}
-	return nil
+	return ts.store.Add(action, value)
 }
 
+// Get allows testing that the data store errors bubble up.
 func (ts *testStore) Get() (map[string]*Average, error) {
-	ts.getCalled = true
 	if ts.returnError {
 		return nil, errors.New(innerError)
 	}

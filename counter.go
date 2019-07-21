@@ -56,10 +56,13 @@ func (ac *ActionCounter) GetStats() string {
 	return string(resp)
 }
 
+// add handles the actual adding. It manages data validation and locking.
 func (ac *ActionCounter) add(aa actionAddition) error {
 	if aa.Time < 1 {
 		return fmt.Errorf("non-positive time given to ActionCounter: %d", aa.Time)
 	}
+	// Unlike reading, writing should lock as close to the write call as possible because
+	// no interactions with given data happen after this point.
 	ac.DataStore.Lock()
 	err := ac.DataStore.Add(aa.Action, aa.Time)
 	// Using defer adds overhead unnecessarily when there's only one place to unlock.
