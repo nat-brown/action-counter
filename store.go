@@ -8,9 +8,9 @@ import (
 
 const uninitializedError = "data store was not initialized"
 
-// DefaultDataStore returns an instance of store with initialized values.
-// Also handles enforcement of store implementing the DataStore interface.
+// DefaultDataStore returns an instance of a non-distributed DataStore ready to use.
 func DefaultDataStore() DataStore {
+	// Also handles the enforcement of store implementing the DataStore interface.
 	return &store{
 		data:    map[string]*Average{},
 		RWMutex: sync.RWMutex{},

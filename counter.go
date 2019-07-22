@@ -1,3 +1,5 @@
+// Package counter provides a library for tracking action times and returning
+// their averages.
 package counter
 
 import (
@@ -7,11 +9,18 @@ import (
 
 // DataStore is an interface for handling new actions.
 type DataStore interface {
+	// Locks are intended to behave as with sync.RWMutex
 	Lock()
 	Unlock()
 	RLock()
 	RUnlock()
+
+	// Add retrieves the given action and adds the given
+	// value to its average.
+	// See the Average struct for details.
 	Add(action string, value int) error
+
+	// Get retrieves all actions and their averages.
 	Get() (map[string]*Average, error)
 }
 
