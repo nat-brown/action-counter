@@ -71,7 +71,7 @@ import (
 ---
 ## Running Tests
 
-Tests can be run with the `go test` command, or `go test -v` for a list of all tests being run. For more options on running tests, you can read more [here]().
+Tests can be run with the `go test` command, or `go test -v` for a list of all tests being run. For more options on running tests, you can read more [here](https://golang.org/pkg/cmd/go/internal/test/).
 
 ---
 ## Go Docs
