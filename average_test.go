@@ -19,8 +19,7 @@ func assertAccurate(t *testing.T, expected, actual float64, failMsg string) {
 
 func TestAverageAddLayering(t *testing.T) {
 	cases := []struct {
-		value           int
-		expectedAverage float64
+		value, expectedAverage float64
 	}{
 		{value: 10, expectedAverage: 10},
 		{value: 5, expectedAverage: 7.5},
@@ -36,7 +35,7 @@ func TestAverageAddLayering(t *testing.T) {
 
 		assertAccurate(t, c.expectedAverage, average.value,
 			fmt.Sprintf(`case %d failed:
-	adding value: %d
+	adding value: %f
 	expected average: %f 
 	actual average: %f`,
 				i, c.value, c.expectedAverage, average.value),
@@ -112,7 +111,7 @@ func TestAverageEdgeCases(t *testing.T) {
 	tts := []struct {
 		name     string
 		avg      Average
-		addValue int
+		addValue float64
 
 		shouldErr   bool
 		errorMsg    string
@@ -146,7 +145,7 @@ func TestAverageEdgeCases(t *testing.T) {
 			},
 			addValue:  0,
 			shouldErr: true,
-			errorMsg:  "Average.Add called with non-positive value 0",
+			errorMsg:  "Average.Add called with non-positive value 0.000000",
 		}, {
 			name: "negative addition",
 			avg: Average{
@@ -155,14 +154,14 @@ func TestAverageEdgeCases(t *testing.T) {
 			},
 			addValue:  -1,
 			shouldErr: true,
-			errorMsg:  "Average.Add called with non-positive value -1",
+			errorMsg:  "Average.Add called with non-positive value -1.000000",
 		}, {
 			name: "max addition",
 			avg: Average{
 				count: 500,
 				value: 10,
 			},
-			addValue: maxInt(),
+			addValue: float64(math.MaxInt64),
 			expectedAvg: Average{
 				count: 501,
 				value: 18409924225259043 + 265.0/501,
@@ -202,22 +201,4 @@ func TestAverageHelpers(t *testing.T) {
 	assertEqual(t, *expected, *actual, "average")
 	assertEqual(t, actual.Value(), actual.value, "value")
 	assertEqual(t, actual.Count(), actual.count, "count")
-}
-
-func TestIntAverage(t *testing.T) {
-	tts := []struct {
-		value    float64
-		expected int
-	}{
-		{value: 0, expected: 0},     // no round
-		{value: 10.1, expected: 10}, // round down
-		{value: 10.5, expected: 11}, // round up
-	}
-
-	for _, tt := range tts {
-		t.Run(fmt.Sprintf("%f rounds to %d", tt.value, tt.expected), func(t *testing.T) {
-			avg := Average{value: tt.value}
-			assertEqual(t, tt.expected, avg.IntValue(), "rounded value")
-		})
-	}
 }

@@ -18,8 +18,8 @@ func TestStatsMarshal(t *testing.T) {
 				"run":  &Average{value: 3.6},
 			},
 			expected: []string{
-				`[{"action":"jump","avg":5},{"action":"run","avg":4}]`,
-				`[{"action":"run","avg":4},{"action":"jump","avg":5}]`,
+				`[{"action":"jump","avg":5.2},{"action":"run","avg":3.6}]`,
+				`[{"action":"run","avg":3.6},{"action":"jump","avg":5.2}]`,
 			},
 		}, {
 			name:     "empty map",
