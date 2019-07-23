@@ -18,12 +18,12 @@ func CountSomeActions() {
         DataStore: counter.DefaultDataStore(),
     }
 
-    ac.AddAction(`{"action":"jump", "time":100}`)
-    ac.AddAction(`{"action":"run", "time":75}`)
+    ac.AddAction(`{"action":"jump", "time":105}`)
+    ac.AddAction(`{"action":"run", "time":75.3}`)
     ac.AddAction(`{"action":"jump", "time":200}`)
 
     output = ac.GetStats()
-    fmt.Println(output) // [{"action":"jump","avg":150},{"action":"run","avg":75}]
+    fmt.Println(output) // [{"action":"jump","avg":152.5},{"action":"run","avg":75.3}]
 }
 ```
 ---
