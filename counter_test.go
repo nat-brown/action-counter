@@ -39,7 +39,7 @@ func TestCounterAddInvalidTime(t *testing.T) {
 		t.Fatalf("got nil instead of expected error")
 	}
 
-	assertEqual(t, "non-positive time given to ActionCounter: -30", err.Error(), "error message")
+	assertEqual(t, "non-positive time given to ActionCounter: -30.000000", err.Error(), "error message")
 	// Ensure we didn't waste time locking.
 	assertEqual(t, false, ts.wasLocked, "was locked")
 }
@@ -86,19 +86,19 @@ func TestCounterAdd(t *testing.T) {
 	assertEqual(t, true, ts.wasUnlocked, "was unlocked")
 }
 
-func TestGetStats(t *testing.T) {
+func TestCounterGetStats(t *testing.T) {
 	ts := newTestStore()
 	ac := ActionCounter{
 		DataStore: &ts,
 	}
 
 	ss := ac.GetStats()
-	assertEqual(t, `[{"action":"swim","avg":31}]`, ss, "stats")
+	assertEqual(t, `[{"action":"swim","avg":30.88}]`, ss, "stats")
 	assertEqual(t, true, ts.wasRLocked, "was read locked")
 	assertEqual(t, true, ts.wasRUnlocked, "was read unlocked")
 }
 
-func TestGetStatsPanic(t *testing.T) {
+func TestCounterGetStatsPanic(t *testing.T) {
 	ts := newTestStore()
 	ac := ActionCounter{
 		DataStore: &ts,
@@ -159,7 +159,7 @@ func (ts *testStore) RUnlock() {
 }
 
 // Add allows testing that the data store errors bubble up.
-func (ts *testStore) Add(action string, value int) error {
+func (ts *testStore) Add(action string, value float64) error {
 	if ts.returnError {
 		return errors.New(innerError)
 	}

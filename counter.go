@@ -18,7 +18,7 @@ type DataStore interface {
 	// Add retrieves the given action and adds the given
 	// value to its average.
 	// See the Average struct for details.
-	Add(action string, value int) error
+	Add(action string, value float64) error
 
 	// Get retrieves all actions and their averages.
 	Get() (map[string]*Average, error)
@@ -67,8 +67,8 @@ func (ac *ActionCounter) GetStats() string {
 
 // add handles the actual adding. It manages data validation and locking.
 func (ac *ActionCounter) add(aa actionAddition) error {
-	if aa.Time < 1 {
-		return fmt.Errorf("non-positive time given to ActionCounter: %d", aa.Time)
+	if aa.Time <= 0 {
+		return fmt.Errorf("non-positive time given to ActionCounter: %f", aa.Time)
 	}
 	// Unlike reading, writing should lock as close to the write call as possible because
 	// no interactions with given data happen after this point.

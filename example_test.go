@@ -46,7 +46,7 @@ func Example() {
 	fmt.Println(sortKeys(output))
 
 	// Output:
-	// [{"action":"jump","avg":31},{"action":"run","avg":3412},{"action":"swim","avg":250}]
+	// [{"action":"jump","avg":30.666666666666664},{"action":"run","avg":3412.333333333333},{"action":"swim","avg":250}]
 }
 
 func ExampleActionCounter() {
@@ -71,8 +71,8 @@ func ExampleActionCounter() {
 
 func sortKeys(output string) string {
 	averages := []struct {
-		Action string `json:"action"`
-		Avg    int    `json:"avg"`
+		Action string  `json:"action"`
+		Avg    float64 `json:"avg"`
 	}{}
 	json.Unmarshal([]byte(output), &averages)
 

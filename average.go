@@ -3,7 +3,6 @@ package counter
 import (
 	"errors"
 	"fmt"
-	"math"
 )
 
 // NewAverage initializes a new Average by setting private values.
@@ -25,9 +24,9 @@ type Average struct {
 }
 
 // Add adds a new value to the cumulative average.
-func (a *Average) Add(newVal int) error {
+func (a *Average) Add(newVal float64) error {
 	if newVal <= 0 {
-		return fmt.Errorf("Average.Add called with non-positive value %d", newVal)
+		return fmt.Errorf("Average.Add called with non-positive value %f", newVal)
 	}
 	if a.count+1 < 0 {
 		return errors.New("Average.count overflow - cannot add to this Average")
@@ -37,7 +36,7 @@ func (a *Average) Add(newVal int) error {
 	largerRatio := (newCount - 1) / newCount
 	smallerRatio := float64(1) / newCount
 
-	newAverage := largerRatio*a.value + smallerRatio*float64(newVal)
+	newAverage := largerRatio*a.value + smallerRatio*newVal
 
 	a.value = newAverage
 	a.count++
@@ -50,8 +49,3 @@ func (a *Average) Count() int { return a.count }
 
 // Value returns the calculated average value.
 func (a *Average) Value() float64 { return a.value }
-
-// IntValue returns an integer representation of the average value, rounded.
-func (a *Average) IntValue() int {
-	return int(math.Round(a.value))
-}

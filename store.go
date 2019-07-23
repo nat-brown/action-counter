@@ -28,7 +28,7 @@ type store struct {
 // Add adds a value to the count for the given action.
 // It will ignore case and assumes that the lock has
 // already been obtained by the caller.
-func (s *store) Add(action string, value int) error {
+func (s *store) Add(action string, value float64) error {
 	if s == nil || s.data == nil {
 		return errors.New(uninitializedError)
 	}

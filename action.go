@@ -4,8 +4,8 @@ import "encoding/json"
 
 // actionAddition is the action "request" struct.
 type actionAddition struct {
-	Action string `json:"action"`
-	Time   int    `json:"time"`
+	Action string  `json:"action"`
+	Time   float64 `json:"time"`
 }
 
 // stats aliases a map of an action to an average to enable custom marshaling.
@@ -18,7 +18,7 @@ func (ss stats) MarshalJSON() ([]byte, error) {
 	for action, avg := range ss {
 		list[i] = stat{
 			Action:  action,
-			Average: avg.IntValue(),
+			Average: avg.Value(),
 		}
 		i++
 	}
@@ -27,6 +27,6 @@ func (ss stats) MarshalJSON() ([]byte, error) {
 
 // stat is the action average "response" struct.
 type stat struct {
-	Action  string `json:"action"`
-	Average int    `json:"avg"`
+	Action  string  `json:"action"`
+	Average float64 `json:"avg"`
 }
