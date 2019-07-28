@@ -36,7 +36,7 @@ func TestCounterConcurrency(t *testing.T) {
 	checkResults(t, results)
 }
 
-// callCounter calls an action counter, outputting data to dataChannel and signaling
+// CallCounter calls an action counter, outputting data to dataChannel and signaling
 // when all data has been sent.
 func callCounter(t *testing.T, dataChannel chan<- choice, allSent chan<- bool) {
 	ac := ActionCounter{
@@ -48,7 +48,10 @@ func callCounter(t *testing.T, dataChannel chan<- choice, allSent chan<- bool) {
 			},
 		},
 	}
-	var wg sync.WaitGroup
+	wg := waitGroup{
+		lock:      &sync.RWMutex{},
+		WaitGroup: &sync.WaitGroup{},
+	}
 
 	makeRandomCounterCalls(t, &wg, ac)
 
@@ -58,8 +61,8 @@ func callCounter(t *testing.T, dataChannel chan<- choice, allSent chan<- bool) {
 	close(allSent)
 }
 
-// makeRandomCounterCalls will make a random call for the given action counter until it times out.
-func makeRandomCounterCalls(t *testing.T, wg *sync.WaitGroup, ac ActionCounter) {
+// MakeRandomCounterCalls will make a random call for the given action counter until it times out.
+func makeRandomCounterCalls(t *testing.T, wg *waitGroup, ac ActionCounter) {
 	timeout := time.After(1 * time.Second)
 	for {
 		select {
@@ -67,11 +70,13 @@ func makeRandomCounterCalls(t *testing.T, wg *sync.WaitGroup, ac ActionCounter) 
 			return
 		default:
 			go func() {
-				wg.Add(1)
+				if !wg.Add(1) {
+					return // Unsuccessful add means the waitgroup already waited.
+				}
 				switch rand.Int() % 2 {
 				case 0:
 					ac.GetStats()
-				default: // default instead of 1 to make changing the ratio easier.
+				default: // Default instead of 1 to make changing the ratio easier.
 					err := ac.AddAction(fmt.Sprintf(`{"action":"%s","time":%d}`, action, rand.Int()))
 					if err != nil {
 						t.Fatal(err)
@@ -186,4 +191,35 @@ func (rs *recorderStore) pushAdd(value float64) {
 		action: add,
 		number: value,
 	}
+}
+
+// WaitGroup adds extra locks to the WaitGroup to allow simultaneous
+// adding, but prevent more elements from trying to add after the
+// WaitGroup has waited. Normal sync.WaitGroups used as above
+// will result in a warning from go test's -race flag.
+type waitGroup struct {
+	waited bool
+	lock   *sync.RWMutex
+	*sync.WaitGroup
+}
+
+// Add behaves as a normal WaitGroup add, but returns if the addition
+// was successful. That is, if it was able to Add before the WaitGroup
+// waited.
+func (w *waitGroup) Add(delta int) (success bool) {
+	w.lock.RLock() // Will allow multiple Add calls to trigger at once.
+	defer w.lock.RUnlock()
+	if w.waited {
+		return false
+	}
+	w.WaitGroup.Add(delta)
+	return true
+}
+
+// Wait behaves as with normal WaitGroup wait, but it blocks Add().
+func (w *waitGroup) Wait() {
+	w.lock.Lock()
+	w.WaitGroup.Wait()
+	w.waited = true
+	w.lock.Unlock()
 }
